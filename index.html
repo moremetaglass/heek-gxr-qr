@@ -17,97 +17,81 @@
     .card-title { font-size: 13px; font-weight: 700; color: var(--accent); margin-bottom: 15px; display: block; border-bottom: 2px solid #e8f0fe; padding-bottom: 5px; }
     .stepper { display: flex; border: 1px solid #ddd; border-radius: 12px; overflow: hidden; height: 44px; background: #fff; margin-bottom: 15px; }
     .stepper button { width: 45px; border: none; background: #f8f9fa; cursor: pointer; font-size: 20px; font-weight: bold; }
-    .stepper input { flex: 1; border: none; text-align: center; font-size: 16px; font-weight: 700; outline: none; width: 50px; }
-    .axis-input { width: 100%; border: 1px solid #ddd; border-radius: 12px; height: 44px; text-align: center; font-size: 16px; font-weight: 700; outline: none; box-sizing: border-box; }
-    .axis-input:disabled { background-color: #f0f0f0; color: #ccc; cursor: not-allowed; }
+    .stepper input { flex: 1; border: none; text-align: center; font-size: 16px; font-weight: 700; outline: none; }
+    .axis-input { width: 100%; border: 1px solid #ddd; border-radius: 12px; height: 44px; text-align: center; font-size: 16px; font-weight: 700; }
+    .axis-input:disabled { background-color: #f0f0f0; color: #ccc; }
     .btn-submit { width: 100%; padding: 20px; background: var(--primary); color: white; border: none; border-radius: 18px; font-size: 17px; font-weight: bold; cursor: pointer; margin-top: 10px; }
     #qr-container { margin-top: 30px; display: none; padding: 25px; border-radius: 24px; background: #f8f9fa; border: 2px dashed #ddd; }
-    #qrcode img { width: 240px; height: 240px; border: 8px solid #fff; border-radius: 15px; }
+    #qrcode img { width: 240px; height: 240px; border-radius: 15px; }
   </style>
 </head>
 <body>
+
 <div class="container">
   <h2>HEEK 갤럭시 XR 시력 설정</h2>
-  <p class="desc">히크 렌즈가이드를 위한 갤럭시 XR 시력 QR 코드를 생성합니다.<br>시력 수치를 입력하세요.</p>
-  <div class="warning-box">📢 원시(볼록렌즈)의 경우에만 플러스(+)로 기재해주세요.</div>
+  <p class="desc">히크 렌즈가이드를 위한 갤럭시 XR 시력 QR 코드를 생성합니다.</p>
 
   <div class="eye-grid">
     <div class="card">
-      <span class="card-title">L 왼쪽 눈 (LEFT)</span>
-      <label style="font-size:11px; color:#999;">SPH (도수)</label>
-      <div class="stepper">
-        <button type="button" onclick="changeVal('ls', -0.25)">-</button>
-        <input type="text" id="ls" value="0.00" onblur="this.value=formatNum(this.value)">
-        <button type="button" onclick="changeVal('ls', 0.25)">+</button>
-      </div>
-      <label style="font-size:11px; color:#999;">CYL (난시)</label>
-      <div class="stepper">
-        <button type="button" onclick="changeVal('lc', -0.25)">-</button>
-        <input type="text" id="lc" value="0.00" onblur="this.value=formatNum(this.value); updateAxis();">
-        <button type="button" onclick="changeVal('lc', 0.25)">+</button>
-      </div>
-      <label style="font-size:11px; color:#999;">AXIS (난시축)</label>
-      <input type="number" id="la" class="axis-input" value="0" oninput="limitA(this)" disabled>
+      <span class="card-title">L 왼쪽 눈</span>
+      <input id="ls" type="number" step="0.25" value="0">
+      <input id="lc" type="number" step="0.25" value="0" oninput="updateAxis()">
+      <input id="la" type="number" value="0" disabled>
     </div>
     <div class="card">
-      <span class="card-title">R 오른쪽 눈 (RIGHT)</span>
-      <label style="font-size:11px; color:#999;">SPH (도수)</label>
-      <div class="stepper">
-        <button type="button" onclick="changeVal('rs', -0.25)">-</button>
-        <input type="text" id="rs" value="0.00" onblur="this.value=formatNum(this.value)">
-        <button type="button" onclick="changeVal('rs', 0.25)">+</button>
-      </div>
-      <label style="font-size:11px; color:#999;">CYL (난시)</label>
-      <div class="stepper">
-        <button type="button" onclick="changeVal('rc', -0.25)">-</button>
-        <input type="text" id="rc" value="0.00" onblur="this.value=formatNum(this.value); updateAxis();">
-        <button type="button" onclick="changeVal('rc', 0.25)">+</button>
-      </div>
-      <label style="font-size:11px; color:#999;">AXIS (난시축)</label>
-      <input type="number" id="ra" class="axis-input" value="0" oninput="limitA(this)" disabled>
+      <span class="card-title">R 오른쪽 눈</span>
+      <input id="rs" type="number" step="0.25" value="0">
+      <input id="rc" type="number" step="0.25" value="0" oninput="updateAxis()">
+      <input id="ra" type="number" value="0" disabled>
     </div>
   </div>
+
   <button class="btn-submit" onclick="makeQR()">시력 QR 코드 생성</button>
+
   <div id="qr-container">
     <div id="qrcode"></div>
-    <div class="qr-text"><b>QR 생성이 완료되었습니다!</b><br>갤럭시 XR을 착용하고 바라보세요.</div>
   </div>
 </div>
 
 <script>
-  function formatNum(v) {
-    let n = parseFloat(v) || 0;
-    let res = n.toFixed(2);
-    return n > 0 ? "+" + res : res;
-  }
-  function changeVal(id, amt) {
-    let el = document.getElementById(id);
-    let cur = parseFloat(el.value) || 0;
-    el.value = formatNum(cur + amt);
-    updateAxis();
-  }
-  function updateAxis() {
-    document.getElementById('la').disabled = (parseFloat(document.getElementById('lc').value) === 0);
-    document.getElementById('ra').disabled = (parseFloat(document.getElementById('rc').value) === 0);
-  }
-  function limitA(el) {
-    if(el.value > 180) el.value = 180;
-    if(el.value < 0) el.value = 0;
-  }
-  function makeQR() {
-    const ls = formatNum(document.getElementById('ls').value);
-    const lc = formatNum(document.getElementById('lc').value);
-    const la = parseFloat(document.getElementById('la').value || 0).toFixed(2);
-    const rs = formatNum(document.getElementById('rs').value);
-    const rc = formatNum(document.getElementById('rc').value);
-    const ra = parseFloat(document.getElementById('ra').value || 0).toFixed(2);
-    const raw = `#tB{"LS":${ls},"LC":${lc},"LA":${la},"RS":${rs},"RC":${rc},"RA":${ra}}`;
-    const encoded = btoa(unescape(encodeURIComponent(raw)));
-    const url = "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" + encodeURIComponent(encoded);
-    document.getElementById('qrcode').innerHTML = `<img src="${url}">`;
-    document.getElementById('qr-container').style.display = 'block';
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-  }
+function updateAxis() {
+  la.disabled = parseFloat(lc.value) === 0;
+  ra.disabled = parseFloat(rc.value) === 0;
+}
+
+function makeQR() {
+  const visionData = {
+    LS: Number(ls.value),
+    LC: Number(lc.value),
+    LA: Number(la.value),
+    RS: Number(rs.value),
+    RC: Number(rc.value),
+    RA: Number(ra.value)
+  };
+
+  // 1️⃣ JSON → Base64
+  const visionBase64 = btoa(
+    unescape(encodeURIComponent(JSON.stringify(visionData)))
+  );
+
+  // 2️⃣ 정품 XR 포맷
+  const payload = JSON.stringify([
+    "I610_EL",
+    "1",
+    visionBase64
+  ]);
+
+  // 3️⃣ QR 생성
+  const url =
+    "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+    encodeURIComponent(payload);
+
+  document.getElementById("qrcode").innerHTML =
+    `<img src="${url}">`;
+
+  document.getElementById("qr-container").style.display = "block";
+}
 </script>
+
 </body>
 </html>
